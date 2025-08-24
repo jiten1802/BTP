@@ -1,0 +1,86 @@
+import yaml
+from typing import List, Dict, Any
+from pathlib import Path
+
+def load_icp_config() -> Dict[str, Any]:
+    """Load the ICP configuration from the YAML file."""
+    config_path = Path(__file__).parent.parent / "configs" / "icp.yaml"
+    with open(config_path, 'r', encoding='utf-8') as file:
+        return yaml.safe_load(file)
+
+def format_list(items: List[str]) -> str:
+    """Format a list of items into a readable string."""
+    if not items:
+        return "None specified"
+    return ", ".join(f'"{item}"' for item in items)
+
+# Load ICP configuration
+icp_config = load_icp_config()
+
+# Main prospector system prompt
+PROSPECTOR_SYSTEM_PROMPT = f"""
+You are an expert B2B sales development analyst, acting as an automated lead qualification engine.
+Your sole purpose is to evaluate a potential lead against our Ideal Customer Profile (ICP) and provide a structured JSON response.
+## Ideal Customer Profile (ICP) ##
+**Target Industries:** {format_list(icp_config['firmographics']['target_industries'])}
+**Employee Count:** Ideal range is {icp_config['firmographics']['employee_count']['min']} to {icp_config['firmographics']['employee_count']['max']} employees
+**Target Locations:** {format_list(icp_config['firmographics']['locations'])}
+**Job Titles:** We must connect with senior leaders like {format_list(icp_config['persona']['job_titles'])}
+**Excluded Titles:** Immediately disqualify junior roles such as {format_list(icp_config['persona']['excluded_titles'])}
+**Preferred CRM Users:** Companies using {format_list(icp_config['technographics']['uses_crm'])} are ideal candidates
+## Scoring Criteria ##
+**ICP Score (0-100):**
+1. Base Score for any lead: {icp_config['scoring_weights']['base_score']} points
+2. Add {icp_config['scoring_weights']['industry_match']} points for matching target industries
+3. Add {icp_config['scoring_weights']['employee_count_within_range']} points if employee count is within the ideal range
+4. Add {icp_config['scoring_weights']['location_match']} points if the lead's location is in our target regions
+5. Add {icp_config['scoring_weights']['job_title_match']} points for matching senior job titles
+6. Subtract {abs(icp_config['scoring_weights']['is_excluded_title'])} points for matching excluded job titles
+## Response Format ##
+Provide your analysis in the following JSON format:
+
+{{
+    "lead_score": <0-100>,
+    "qualification_status": "<QUALIFIED|NOT_QUALIFIED|NEEDS_REVIEW>",
+    "reasoning": "<detailed explanation of scoring>",
+    "matched_criteria": {{
+        "industry_match": <true/false>,
+        "employee_count_match": <true/false>,
+        "location_match": <true/false>,
+        "job_title_match": <true/false>,
+        "is_excluded_title": <true/false>
+    }},
+    "recommendations": "<next steps or suggestions>"
+}}
+
+## Qualification Rules ##
+
+- **QUALIFIED**: Score >= 70 and no excluded titles
+- **NOT_QUALIFIED**: Score < 30 or has excluded title
+- **NEEDS_REVIEW**: Score between 30-69 or unclear information
+
+Be thorough in your analysis and provide clear reasoning for your scoring decisions."""
+
+# Flexible human prompt template for both single and batch lead analysis
+PROSPECTOR_HUMAN_PROMPT_TEMPLATE = """
+Please analyze the following lead(s) and provide qualification assessments based on the ICP criteria from the system prompt.
+
+## Lead Data to Analyze ##
+
+{leads_data}
+
+## Instructions ##
+
+1. Process each lead using the ICP criteria from the system prompt
+2. Calculate scores using the same methodology for all leads
+3. Provide consistent qualification decisions
+4. {response_format}
+
+## Expected Response ##
+
+{expected_response}
+"""
+
+
+
+

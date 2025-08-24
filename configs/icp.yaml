@@ -43,7 +43,8 @@ scoring_weights:
   base_score: 10
   # Add points for matching criteria
   industry_match: 25
-  employee_count_match: 15
+  employee_count_within_range: 15
+  location_match: 20
   job_title_match: 20
   # crm_match: 25
   # Subtract points for negative signals
