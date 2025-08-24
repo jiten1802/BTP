@@ -1,0 +1,50 @@
+# Ideal Customer Profile for "Project Phoenix"
+
+# 1. Firmographics (Company-level data)
+firmographics:
+  target_industries:
+    - "Software as a Service (SaaS)"
+    - "Financial Technology"
+    - "E-commerce"
+  employee_count:
+    min: 50
+    max: 1000
+  locations:
+    - "North America"
+    - "Western Europe"
+
+# 2. Persona (Contact-level data)
+persona:
+  job_titles:
+    - "Head of Sales"
+    - "VP of Marketing"
+    - "Sales Director"
+    - "Chief Revenue Officer"
+  seniority_level:
+    - "Director"
+    - "VP"
+    - "C-Level"
+  # Exclude certain roles to avoid noise
+  excluded_titles:
+    - "Intern"
+    - "Assistant"
+    - "Analyst"
+
+# 3. Technographics (What technologies they use)
+technographics:
+  # We are a great fit for companies using these CRMs
+  uses_crm:
+    - "Salesforce"
+    - "HubSpot"
+
+# 4. Scoring Model (To rank leads instead of just matching)
+scoring_weights:
+  # Base score for any lead
+  base_score: 10
+  # Add points for matching criteria
+  industry_match: 25
+  employee_count_match: 15
+  job_title_match: 20
+  # crm_match: 25
+  # Subtract points for negative signals
+  is_excluded_title: -50
