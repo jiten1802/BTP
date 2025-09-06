@@ -1,12 +1,12 @@
 from models.state import AgenticState, Lead
 from pydantic import BaseModel, Field, field_validator
-import json
 from typing import Dict, Any, Literal
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv
 from models.prompts import PROSPECTOR_SYSTEM_PROMPT, PROSPECTOR_HUMAN_PROMPT_TEMPLATE
 from utils import get_leads_by_status, update_performance_metrics, rate_limited_call
+import json
 import os
 
 load_dotenv()
