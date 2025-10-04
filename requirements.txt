@@ -4,4 +4,6 @@ langchain
 python-dotenv
 pydantic
 pyyaml
-langchan-google-genai
+langchain-google-genai
+FastAPI
+uvicorn

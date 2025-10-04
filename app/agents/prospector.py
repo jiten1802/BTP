@@ -1,11 +1,11 @@
-from models.state import AgenticState, Lead
+from app.models.state import AgenticState, Lead
 from pydantic import BaseModel, Field, field_validator
 from typing import Dict, Any, Literal
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv
-from models.prompts import PROSPECTOR_SYSTEM_PROMPT, PROSPECTOR_HUMAN_PROMPT_TEMPLATE
-from utils import get_leads_by_status, update_performance_metrics, rate_limited_call
+from app.models.prompts import PROSPECTOR_SYSTEM_PROMPT, PROSPECTOR_HUMAN_PROMPT_TEMPLATE
+from app.utils import get_leads_by_status, update_performance_metrics, rate_limited_call
 import json
 import os
 
@@ -13,8 +13,7 @@ load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 
 if not api_key:
-    raise ValueError("GOOGLE_API_KEY not found in environment variables")
-
+    raise ValueError("GEMINI_API_KEY not found in environment variables")
 
 class LeadScore(BaseModel):
     lead_score: int = Field(description="ICP Score form 0-100", ge=0, le=100)
@@ -68,7 +67,7 @@ def score_lead(lead: Dict[str, Any]) -> LeadScore:
         leads_data = lead_data,
         response_format = "Return a single JSON object. Use true/false for boolean values (lowercase), and double quotes for strings.",
         expected_response = """
-        A LeadScore object with lead_score, qualification_status, reasoning, matched_criteria, and recommendations.
+        A LeadScore object with lead_score, qualification_status, reasoning, matched_criteria, and recommendations as given in the following example:
         {
             lead_score: ICP Score form 0-100,
             qualification_status: Qualification status based on socre and criteria,
@@ -161,6 +160,5 @@ def Prospector(state: AgenticState) -> AgenticState:
 
     print(f"✅ Prospector: Completed processing {processed_count} leads")
     print(f"🎯 Prospector: Found {qualified_count} qualified leads")
-    print(f"📤 Prospector: Publishing all {processed_count} scored leads to Strategist")
     
     return state

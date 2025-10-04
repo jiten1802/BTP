@@ -4,7 +4,7 @@ from pathlib import Path
 
 def load_icp_config() -> Dict[str, Any]:
     """Load the ICP configuration from the YAML file."""
-    config_path = Path(__file__).parent.parent / "configs" / "icp.yaml"
+    config_path = Path(__file__).parent.parent.parent / "configs" / "icp.yaml"
     with open(config_path, 'r', encoding='utf-8') as file:
         return yaml.safe_load(file)
 
@@ -14,10 +14,8 @@ def format_list(items: List[str]) -> str:
         return "None specified"
     return ", ".join(f'"{item}"' for item in items)
 
-# Load ICP configuration
 icp_config = load_icp_config()
 
-# Main prospector system prompt
 PROSPECTOR_SYSTEM_PROMPT = f"""
 You are an expert B2B sales development analyst, acting as an automated lead qualification engine.
 Your sole purpose is to evaluate a potential lead against our Ideal Customer Profile (ICP) and provide a structured JSON response.
@@ -61,7 +59,6 @@ Provide your analysis in the following JSON format:
 
 Be thorough in your analysis and provide clear reasoning for your scoring decisions."""
 
-# Flexible human prompt template for both single and batch lead analysis
 PROSPECTOR_HUMAN_PROMPT_TEMPLATE = """
 Please analyze the following lead(s) and provide qualification assessments based on the ICP criteria from the system prompt.
 
@@ -81,6 +78,45 @@ Please analyze the following lead(s) and provide qualification assessments based
 {expected_response}
 """
 
+STRATEGIST_SYSTEM_PROMPT = f"""
+You are an expert B2B sales outreach strategist. Your task is to write highly personalized and persuasive outreach emails to potential leads. Use the lead's profile, including their company, role, recent activities, and any publicly available information, along with the Ideal Customer Profile (ICP) criteria, to tailor your message.
 
+Guidelines for the emails:
+1. Personalization: Reference specific details about the lead or their company to show relevance and research.
+2. Clarity: Communicate your value proposition concisely and clearly.
+3. Persuasive Tone: Be professional, confident, and solution-oriented, highlighting how your product/service addresses their specific pain points.
+4. Structure: Include a clear opening, value proposition, social proof or credibility elements if possible, and a call-to-action that encourages engagement.
+5. Brevity: Keep emails concise, ideally between 100-150 words.
+6. Adaptability: Adjust tone based on the lead's role and seniority—e.g., executives prefer strategic benefits, while managers may prefer tactical advantages.
+7. Avoid clichés and generic statements: Make every sentence meaningful and relevant to the lead.
+Your ultimate goal is to maximize the chance of a positive response and start a conversation, not just provide information.
+
+## Ideal Customer Profile (ICP) ##
+**Target Industries:** {format_list(icp_config['firmographics']['target_industries'])}
+**Employee Count:** Ideal range is {icp_config['firmographics']['employee_count']['min']} to {icp_config['firmographics']['employee_count']['max']} employees
+**Target Locations:** {format_list(icp_config['firmographics']['locations'])}
+**Job Titles:** We must connect with senior leaders like {format_list(icp_config['persona']['job_titles'])}
+**Excluded Titles:** Immediately disqualify junior roles such as {format_list(icp_config['persona']['excluded_titles'])}
+**Preferred CRM Users:** Companies using {format_list(icp_config['technographics']['uses_crm'])} are ideal candidates
+"""
+
+STRATEGIST_HUMAN_PROMPT_TEMPLATE = f"""
+Please write a highly personalized and persuasive outreach email to the following lead:
+
+{lead_data}
+
+## Instructions ##
+1. Use the ICP criteria from the system prompt to tailor your message.
+2. Write a highly personalized and persuasive outreach email to the lead.
+3. Give proper salutation and signature to the email.
+4. Keep the email concise, ideally between 150 - 200 words.
+5. Adapt the tone based on the lead's role and seniority—e.g., executives prefer strategic benefits, while managers may prefer tactical advantages.
+6. Avoid clichés and generic statements: Make every sentence meaningful and relevant to the lead.
+7. Your ultimate goal is to maximize the chance of a positive response and start a conversation, not just provide information.
+
+## Expected Response ##
+
+{expected_response}
+"""
 
 

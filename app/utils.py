@@ -1,4 +1,4 @@
-from models.state import AgenticState, Lead
+from app.models.state import AgenticState, Lead
 from typing import List, Dict, Any
 import time
 from functools import wraps
@@ -109,7 +109,7 @@ def rate_limited_call(max_per_minute: int = 13):
             elapsed = now - last_called[0]
             wait = interval - elapsed
             if wait > 0:
-                time.sleep(wait)  # 🚦 throttle
+                time.sleep(wait)  # throttle
             result = func(*args, **kwargs)
             last_called[0] = time.time()
             return result
