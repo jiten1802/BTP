@@ -1,7 +1,7 @@
 from app.models.state import AgenticState, Lead
 from pydantic import BaseModel, Field
-from typing import Dict, Any, Literal
-from langchain_google_genai import ChatGoogleGenerativeAI
+from typing import Dict, Literal
+from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv
 from app.models.prompts import STRATEGIST_SYSTEM_PROMPT, STRATEGIST_HUMAN_PROMPT_TEMPLATE
@@ -9,10 +9,10 @@ from app.utils import get_leads_by_status, update_performance_metrics, rate_limi
 import os
 
 load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
+api_key = os.getenv("GROQ_API_KEY_1")
 
 if not api_key:
-    raise ValueError("GEMINI_API_KEY not found in environment variables")
+    raise ValueError("GROQ_API_KEY not found in environment variables")
 
 class PersonalizedMessage(BaseModel):
     subject_line: str = Field(description="Compelling email subject line (max 50 characters)")
@@ -30,7 +30,7 @@ class PersonalizedMessage(BaseModel):
     follow_up_suggestion: str = Field(description="Suggested follow-up strategy if no response")
 
 if api_key != "placeholder_key":
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0.7, api_key=api_key)
+    llm = ChatGroq(model="gemini-2.5-pro", temperature=0.7, api_key=api_key)
     structured_llm = llm.with_structured_output(PersonalizedMessage)
 else:
     llm = None

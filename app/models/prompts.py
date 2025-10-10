@@ -11,7 +11,7 @@ def load_icp_config() -> Dict[str, Any]:
 def format_list(items: List[str]) -> str:
     """Format a list of items into a readable string."""
     if not items:
-        return "None specified"
+        return "None specified" 
     return ", ".join(f'"{item}"' for item in items)
 
 icp_config = load_icp_config()
@@ -78,6 +78,41 @@ Please analyze the following lead(s) and provide qualification assessments based
 {expected_response}
 """
 
+# Batch processing human prompt template for scoring multiple leads in one request
+BATCH_PROSPECTOR_HUMAN_PROMPT_TEMPLATE = """
+Please analyze the following 5 leads and provide qualification assessments for EACH lead based on the ICP criteria from the system prompt.
+
+IMPORTANT OUTPUT RULES:
+- Return ONLY valid JSON (no prose, no markdown fences, no comments)
+- The JSON must be a single top-level array of exactly 5 objects (no wrapping object)
+- The 5 objects must be in the SAME ORDER as the input leads
+- Booleans must be true/false (lowercase). Strings must use double quotes
+
+## Leads to Analyze ##
+
+Lead 1:
+{lead_1_data}
+
+Lead 2:
+{lead_2_data}
+
+Lead 3:
+{lead_3_data}
+
+Lead 4:
+{lead_4_data}
+
+Lead 5:
+{lead_5_data}
+
+## Output Format ##
+{response_format}
+
+## Example of an Expected Response ##
+
+{expected_response}
+"""
+
 STRATEGIST_SYSTEM_PROMPT = f"""
 You are an expert B2B sales outreach strategist. Your task is to write highly personalized and persuasive outreach emails to potential leads. Use the lead's profile, including their company, role, recent activities, and any publicly available information, along with the Ideal Customer Profile (ICP) criteria, to tailor your message.
 
@@ -103,7 +138,7 @@ Your ultimate goal is to maximize the chance of a positive response and start a 
 STRATEGIST_HUMAN_PROMPT_TEMPLATE = f"""
 Please write a highly personalized and persuasive outreach email to the following lead:
 
-{lead_data}
+{{lead_data}}
 
 ## Instructions ##
 1. Use the ICP criteria from the system prompt to tailor your message.
@@ -116,7 +151,7 @@ Please write a highly personalized and persuasive outreach email to the followin
 
 ## Expected Response ##
 
-{expected_response}
+{{expected_response}}
 """
 
 

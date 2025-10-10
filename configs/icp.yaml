@@ -3,39 +3,48 @@
 # 1. Firmographics (Company-level data)
 firmographics:
   target_industries:
-    - "Software as a Service (SaaS)"
-    - "Financial Technology"
+    - "Software"
     - "E-commerce"
+    - "Finance"
+    - "Cybersecurity"
   employee_count:
-    min: 50
-    max: 1000
+    min: 100
+    max: 2000
   locations:
-    - "North America"
-    - "Western Europe"
+    - "Bengaluru"
+    - "Hyderabad"
+    - "Pune"
+    - "Gurugram"
+    - "Mumbai"
 
 # 2. Persona (Contact-level data)
 persona:
   job_titles:
     - "Head of Sales"
-    - "VP of Marketing"
-    - "Sales Director"
-    - "Chief Revenue Officer"
+    - "Head of Marketing"
+    - "Product Manager"
+    - "CTO"
+    - "CEO"
+    - "Data Scientist"
   seniority_level:
+    - "Manager"
+    - "Head"
     - "Director"
-    - "VP"
     - "C-Level"
-  # Exclude certain roles to avoid noise
   excluded_titles:
     - "Intern"
+    - "Executive"
     - "Assistant"
-    - "Analyst"
+    - "Sales Executive"
 
-# 3. Technographics (What technologies they use)
 technographics:
-  # We are a great fit for companies using these CRMs
   uses_crm:
-    - "Salesforce"
     - "HubSpot"
+    - "Zoho CRM"
+    - "Salesforce"
+  uses_analytics:
+    - "Google Analytics"
+    - "Mixpanel"
 
 # 4. Scoring Model (To rank leads instead of just matching)
 scoring_weights:

@@ -7,3 +7,4 @@ pyyaml
 langchain-google-genai
 FastAPI
 uvicorn
+langchain-groq
