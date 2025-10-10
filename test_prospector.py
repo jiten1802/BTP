@@ -42,11 +42,11 @@ def main():
     console.print("=" * 80 + "\n")
     
 
-    key = os.getenv("GEMINI_API_KEY_3")
+    key = os.getenv("GROQ_API_KEY_1")
     if not key:
         console.print(f"⚠️  API Key not found in .env file\n", style="bold yellow")
         
-    list_models_for_key("AIzaSyBTVkF8DVK5E0upSddecyYvwKJJdJqwE-E")
+    list_models_for_key(key)
 
 if __name__ == "__main__":
     main()
