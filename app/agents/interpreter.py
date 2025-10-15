@@ -55,9 +55,8 @@ def Interpreter(state: AgenticState) -> AgenticState:
     """
     Checks Gmail for replies from leads, analyzes their intent, and updates their state.
     """
-    leads_to_check = get_leads_by_status(state, "outreach_sent")
+    leads_to_check = state.lead
     if not leads_to_check:
-        print("Interpreter: No leads with 'outreach_sent' status to check for replies.")
         return state
 
     print(f"Interpreter: Checking Gmail for replies from {len(leads_to_check)} leads...")

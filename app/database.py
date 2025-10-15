@@ -3,6 +3,7 @@ import json
 from .models.state import Lead
 from pathlib import Path
 import logging
+from typing import List
 
 # Setup basic logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -88,3 +89,43 @@ def initialize_database():
         conn.close()
     else:
         logging.error("Database initialization failed: Could not create connection.")
+
+# Add these two new functions to app/database.py
+
+def load_leads_by_status(conn, status: str) -> List[Lead]:
+    """
+    Loads all leads from the database that have a specific status.
+    """
+    leads = []
+    try:
+        conn.row_factory = sqlite3.Row # Allows accessing columns by name
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM qualified_leads WHERE status = ?", (status,))
+        rows = cursor.fetchall()
+
+        for row in rows:
+            # Reconstruct the Lead Pydantic model from the database row
+            lead = Lead(
+                lead_id=row['lead_id'],
+                raw_data=json.loads(row['raw_data']),
+                status=row['status'],
+                qualified_lead=bool(row['qualified_lead']),
+                score=row['score'],
+                personalized_message=row['personalized_message'],
+                communication_history=json.loads(row['communication_history']),
+                # Ensure other fields from your model are reconstructed here if they exist in the DB
+                intent=row.get('intent'),
+                meeting_details=json.loads(row['meeting_details']) if row.get('meeting_details') else None
+            )
+            leads.append(lead)
+    except Exception as e:
+        logging.error(f"Failed to load leads with status '{status}': {e}")
+    
+    return leads
+
+def update_lead_in_db(conn, lead: Lead):
+    """
+    Updates an existing lead's information in the database.
+    This is effectively the same as publish_lead, which uses INSERT OR REPLACE.
+    """
+    publish_lead(conn, lead)

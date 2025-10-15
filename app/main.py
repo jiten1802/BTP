@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from app.models.state import AgenticState
 from app.initialize import initialize_state
 from langgraph.graph import StateGraph, END, START
+from typing import Literal
 
 global_state = initialize_state()
 
@@ -23,23 +24,7 @@ graph.add_node("RecordKeeper", RecordKeeper)
 graph.add_edge(START, "Prospector")
 graph.add_edge("Prospector", "Strategist")
 graph.add_edge("Strategist", "Communicator")
-graph.add_edge("Communicator", "Interpreter")
-def route_after_interpreter(state: AgenticState) -> Literal["scheduler", "record_keeper", "__end__"]:
-    # ... (function is the same as before)
-    if any(lead.status == "interested" for lead in state.lead):
-        return "scheduler"
-    if any(lead.status in ["not_interested", "wrong_person"] for lead in state.lead):
-        return "record_keeper"
-    return "__end__"
-graph.add_conditional_edges(
-    "interpreter",
-    route_after_interpreter,
-    {
-        "scheduler": "scheduler",
-        "record_keeper": "record_keeper",
-        "__end__": END
-    }
-)
+graph.add_edge("Communicator", END)
 
 app_graph = graph.compile()
 
