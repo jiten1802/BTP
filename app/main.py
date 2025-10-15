@@ -2,6 +2,8 @@ from app.agents.prospector import Prospector
 from app.agents.strategist import Strategist
 from app.agents.communicator import Communicator
 from app.agents.interpreter import Interpreter
+from app.agents.scheduler import Scheduler
+from app.agents.record_keeper import RecordKeeper
 from fastapi import FastAPI
 from app.models.state import AgenticState
 from app.initialize import initialize_state
@@ -15,12 +17,29 @@ graph.add_node("Prospector", Prospector)
 graph.add_node("Strategist", Strategist)
 graph.add_node("Communicator", Communicator)
 graph.add_node("Interpreter", Interpreter)
+graph.add_node("Scheduler", Scheduler)
+graph.add_node("RecordKeeper", RecordKeeper)
 
 graph.add_edge(START, "Prospector")
 graph.add_edge("Prospector", "Strategist")
 graph.add_edge("Strategist", "Communicator")
 graph.add_edge("Communicator", "Interpreter")
-graph.add_edge("Interpreter", END)
+def route_after_interpreter(state: AgenticState) -> Literal["scheduler", "record_keeper", "__end__"]:
+    # ... (function is the same as before)
+    if any(lead.status == "interested" for lead in state.lead):
+        return "scheduler"
+    if any(lead.status in ["not_interested", "wrong_person"] for lead in state.lead):
+        return "record_keeper"
+    return "__end__"
+graph.add_conditional_edges(
+    "interpreter",
+    route_after_interpreter,
+    {
+        "scheduler": "scheduler",
+        "record_keeper": "record_keeper",
+        "__end__": END
+    }
+)
 
 app_graph = graph.compile()
 
