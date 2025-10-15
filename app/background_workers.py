@@ -54,7 +54,7 @@ def process_pending_leads():
 
 if __name__ == "__main__":
     scheduler = BlockingScheduler()
-    scheduler.add_job(process_pending_leads, 'interval', minutes=2) # Runs every 2 minutes
+    scheduler.add_job(process_pending_leads, 'interval', minutes=30) # Runs every 2 minutes
     
     print("Starting background worker. It will check for tasks every 2 minutes. Press Ctrl+C to exit.")
     
