@@ -64,7 +64,7 @@ def create_llm_with_key(api_key: str, batch_mode: bool = False):
     llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, groq_api_key=api_key)
     return llm.with_structured_output(BatchLeadScore if batch_mode else LeadScore)
 
-@rate_limited_call(max_per_minute=75)  
+@rate_limited_call(max_per_minute=25)  
 def call_llm(messages: List, api_key: str, batch_mode: bool = False):
     """
     Calls the LLM with a specific API key.

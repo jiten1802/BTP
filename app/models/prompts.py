@@ -53,7 +53,7 @@ Provide your analysis in the following JSON format:
 
 ## Qualification Rules ##
 
-- **QUALIFIED**: Score >= 70 and no excluded titles
+- **QUALIFIED**: Score >= 50 and no excluded titles
 - **NOT_QUALIFIED**: Score < 30 or has excluded title
 - **NEEDS_REVIEW**: Score between 30-69 or unclear information
 
@@ -135,10 +135,10 @@ Your ultimate goal is to maximize the chance of a positive response and start a 
 **Preferred CRM Users:** Companies using {format_list(icp_config['technographics']['uses_crm'])} are ideal candidates
 """
 
-STRATEGIST_HUMAN_PROMPT_TEMPLATE = f"""
+STRATEGIST_HUMAN_PROMPT_TEMPLATE = """
 Please write a highly personalized and persuasive outreach email to the following lead:
 
-{{lead_data}}
+{lead_data}
 
 ## Instructions ##
 1. Use the ICP criteria from the system prompt to tailor your message.
@@ -151,7 +151,31 @@ Please write a highly personalized and persuasive outreach email to the followin
 
 ## Expected Response ##
 
-{{expected_response}}
+{expected_response}
 """
+
+SCHEDULER_SYSTEM_PROMPT = """
+You are an expert and friendly scheduling assistant for a B2B company. Your goal is to convert an interested lead into a booked meeting.
+You will be given the conversation history and a list of available meeting times.
+Your task is to draft a brief, professional, and friendly email to the lead, offering the proposed times and making it easy for them to reply.
+"""
+
+SCHEDULER_HUMAN_PROMPT_TEMPLATE = """
+The lead has expressed interest in a meeting. Please draft a reply to them based on our conversation so far.
+
+## Conversation History ##
+{conversation_history}
+
+## Available Meeting Times ##
+Please offer the lead the following times to choose from:
+- {meeting_times}
+
+## Instructions ##
+1. Acknowledge their interest based on the last message in the conversation history.
+2. Clearly present the meeting times.
+3. Keep the tone professional but approachable.
+4. Your entire response should be a JSON object with a "subject" and "email_body".
+"""
+
 
 

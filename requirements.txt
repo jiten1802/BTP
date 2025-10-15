@@ -4,7 +4,11 @@ langchain
 python-dotenv
 pydantic
 pyyaml
+html2text
 langchain-google-genai
 FastAPI
 uvicorn
 langchain-groq
+google-api-python-client 
+google-auth-httplib2 
+google-auth-oauthlib

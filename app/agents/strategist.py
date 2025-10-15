@@ -1,18 +1,19 @@
 from app.models.state import AgenticState, Lead
 from pydantic import BaseModel, Field
 from typing import Dict, Literal
-from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv
 from app.models.prompts import STRATEGIST_SYSTEM_PROMPT, STRATEGIST_HUMAN_PROMPT_TEMPLATE
-from app.utils import get_leads_by_status, update_performance_metrics, rate_limited_call
+from app.utils import update_performance_metrics, rate_limited_call
+from app.database import create_connection, publish_lead
 import os
 
 load_dotenv()
-api_key = os.getenv("GROQ_API_KEY_1")
+api_key = os.getenv("GEMINI_API_KEY_3")
 
 if not api_key:
-    raise ValueError("GROQ_API_KEY not found in environment variables")
+    raise ValueError("GEMINI_API_KEY not found in environment variables")
 
 class PersonalizedMessage(BaseModel):
     subject_line: str = Field(description="Compelling email subject line (max 50 characters)")
@@ -29,14 +30,10 @@ class PersonalizedMessage(BaseModel):
     call_to_action: str = Field(description="Clear call-to-action for the recipient")
     follow_up_suggestion: str = Field(description="Suggested follow-up strategy if no response")
 
-if api_key != "placeholder_key":
-    llm = ChatGroq(model="gemini-2.5-pro", temperature=0.7, api_key=api_key)
-    structured_llm = llm.with_structured_output(PersonalizedMessage)
-else:
-    llm = None
-    structured_llm = None
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0.7, api_key=api_key)
+structured_llm = llm.with_structured_output(PersonalizedMessage)
 
-@rate_limited_call(max_per_minute=13)
+@rate_limited_call(max_per_minute=3)
 def call_llm(messages):
     if structured_llm is None:
         raise ValueError("LLM not initialized. Please set GEMINI_API_KEY environment variable.")
@@ -96,7 +93,7 @@ def generate_personalized_message(lead: Lead) -> PersonalizedMessage:
         )
         return fallback_message
 
-def process_single_lead_message(lead: Lead) -> Lead:
+def process_single_lead_message(lead: Lead, db_conn) -> Lead:
     """
     Process a single qualified lead to generate personalized message.
     """
@@ -126,6 +123,11 @@ def process_single_lead_message(lead: Lead) -> Lead:
     
     lead.communication_history.append(communication_entry)
     lead.status = "message_generated"
+
+    try:
+        publish_lead(db_conn, lead)
+    except Exception as e:
+        print(f"Error publishing lead {lead.lead_id} to database: {str(e)}")
     
     return lead
 
@@ -145,12 +147,17 @@ def Strategist(state: AgenticState) -> AgenticState:
 
     print(f"Generating personalized messages for {len(qualified_leads)} qualified leads...")
 
+    db_conn = create_connection()
+    if not db_conn:
+        print("Could not connect to the database. Aborting strategist run.")
+        return state
+
     processed_count = 0
     message_generated_count = 0
 
     for lead in qualified_leads:
         try:
-            processed_lead = process_single_lead_message(lead)
+            processed_lead = process_single_lead_message(lead, db_conn)
             processed_count += 1
             
             if processed_lead.personalized_message:
@@ -163,10 +170,13 @@ def Strategist(state: AgenticState) -> AgenticState:
             print(f"Error generating message for lead {lead.lead_id}: {str(e)}")
             lead.status = "message_generation_failed"
 
+    if db_conn:
+        db_conn.close()
+
     update_performance_metrics(state, "messages_generated", message_generated_count)
     update_performance_metrics(state, "strategist_processed", processed_count)
 
-    print(f"✅ Strategist: Completed generating {message_generated_count} personalized messages")
-    print(f"📧 Strategist: Processed {processed_count} qualified leads")
+    print(f"Strategist: Completed generating {message_generated_count} personalized messages")
+    print(f"Strategist: Processed {processed_count} qualified leads")
     
     return state
