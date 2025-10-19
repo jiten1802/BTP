@@ -1,3 +1,4 @@
+from langsmith import expect
 import yaml
 from typing import List, Dict, Any
 from pathlib import Path
@@ -136,20 +137,19 @@ Your ultimate goal is to maximize the chance of a positive response and start a 
 """
 
 STRATEGIST_HUMAN_PROMPT_TEMPLATE = """
-Please write a highly personalized and persuasive outreach email to the following lead:
+Please write a highly personalized and persuasive outreach email to the following lead.
 
 {lead_data}
 
 ## Instructions ##
 1. Use the ICP criteria from the system prompt to tailor your message.
-2. Write a highly personalized and persuasive outreach email to the lead.
-3. Give proper salutation and signature to the email.
-4. Keep the email concise, ideally between 150 - 200 words.
-5. Adapt the tone based on the lead's role and seniority—e.g., executives prefer strategic benefits, while managers may prefer tactical advantages.
-6. Avoid clichés and generic statements: Make every sentence meaningful and relevant to the lead.
-7. Your ultimate goal is to maximize the chance of a positive response and start a conversation, not just provide information.
+2. Your response MUST be a JSON object.
+3. Generate the content for each part of the email separately: 'salutation', 'email_body', and 'signature'.
+4. The 'email_body' should ONLY contain the main message, without any greeting or sign-off.
+5. Adapt the tone based on the lead's role and seniority.
+6. Avoid clichés and generic statements.
 
-## Expected Response ##
+## Expected Response JSON Structure ##
 
 {expected_response}
 """
@@ -177,5 +177,56 @@ Please offer the lead the following times to choose from:
 4. Your entire response should be a JSON object with a "subject" and "email_body".
 """
 
+INTERPRETER_SYSTEM_PROMPT = """
+You are an expert at analyzing email responses from sales outreach. Your sole purpose is to determine the recipient's intent based on their reply.
+Analyze the email content and classify the intent into one of the following categories:
+- INTERESTED: The lead is open to a conversation, asks for more information, or suggests a meeting.
+- NOT_INTERESTED: The lead explicitly states they are not interested, asks to be removed from the list, or indicates it's not a good fit.
+- WRONG_PERSON: The lead suggests contacting someone else in the company or states they are not the right person for this topic.
+- MEETING_TIME_CONFIRMED: The lead explicitly agrees to one of the proposed meeting times. For this intent, you MUST extract the chosen time into the 'confirmed_time' field.
+- NEEDS_CLARIFICATION: The lead's response is ambiguous and requires a human to review.
+
+Provide your analysis in the specified JSON format.
+"""
+
+INTERPRETER_HUMAN_PROMPT_TEMPLATE = """
+Please analyze the following email response I received after my initial outreach and determine the sender's intent.
+
+## Initial Outreach Message (for context) ##
+{initial_message}
+
+## Their Reply ##
+{lead_reply}
+
+## Instructions ##
+1. Read the initial message for context about what was asked of them.
+2. Carefully analyze their reply to determine the primary intent based on the system prompt categories.
+3. If the intent is MEETING_TIME_CONFIRMED, extract the specific date and time they agreed to.
+4. Provide your response in the required JSON format.
+"""
+
+# In app/models/prompts.py (at the end of the file)
+
+FOLLOWUP_SYSTEM_PROMPT = """
+You are an expert B2B sales development assistant. Your task is to write a brief, polite, and effective follow-up email.
+The goal is to gently remind the lead of the initial message without being pushy, and to reiterate the value proposition.
+You will be given the original message that was sent.
+"""
+
+FOLLOWUP_HUMAN_PROMPT_TEMPLATE = """
+We sent the following email to a lead 2 days ago but have not received a reply. Please draft a follow-up email that will be sent in the same thread.
+
+## Original Email Sent ##
+Subject: {original_subject}
+Body:
+{original_body}
+
+## Instructions ##
+1.  Keep the follow-up concise (2-3 sentences is ideal).
+2.  Do NOT include a subject line, as this will be a reply in an existing thread.
+3.  The tone should be helpful and professional.
+4.  Gently refer back to the previous email's call-to-action.
+5.  Your entire response must be a JSON object with only one key: "follow_up_body".
+"""
 
 

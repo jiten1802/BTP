@@ -1,86 +1,90 @@
+# app/agents/scheduler.py
+from json import load
 import logging
-from typing import List
-from pydantic import BaseModel, Field
-from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage, SystemMessage
-from datetime import datetime
+from datetime import datetime, timedelta
+from app.models.state import AgenticState
+from app.google_api_client import find_free_slots, create_calendar_event
+from app.tools.scheduling_tools import send_meeting_options_email 
+from app.utils import update_performance_metrics
+from dotenv import load_dotenv
+import os
 
-from app.models.state import AgenticState, Lead
-from app.models.prompts import SCHEDULER_SYSTEM_PROMPT, SCHEDULER_HUMAN_PROMPT_TEMPLATE
-from app.utils import get_leads_by_status, update_performance_metrics
-from app.key_manager import api_key_manager
-from app.email_client import send_email
-
-# --- Pydantic Model for LLM's Structured Output ---
-class SchedulingEmail(BaseModel):
-    subject: str = Field(description="A clear and friendly subject line for the scheduling email.")
-    email_body: str = Field(description="The full HTML body of the email offering meeting times.")
-
-def create_llm_with_key(api_key: str):
-    llm = ChatGroq(model="llama-3.1-8b-8192", temperature=0.5, groq_api_key=api_key)
-    return llm.with_structured_output(SchedulingEmail)
-
-def draft_scheduling_email(history: List[dict], times: List[str], api_key: str) -> SchedulingEmail:
-    """Calls an LLM to draft an email offering meeting times."""
-    
-    # Format the conversation history for the prompt
-    convo_str = "\n".join([f"<{msg['type']}>: {msg['message']}" for msg in history])
-    times_str = "\n".join([f"- {time}" for time in times])
-
-    human_message = SCHEDULER_HUMAN_PROMPT_TEMPLATE.format(
-        conversation_history=convo_str,
-        meeting_times=times_str
-    )
-    messages = [SystemMessage(content=SCHEDULER_SYSTEM_PROMPT), HumanMessage(content=human_message)]
-
-    try:
-        structured_llm = create_llm_with_key(api_key)
-        result = structured_llm.invoke(messages)
-        api_key_manager.record_api_call(api_key, success=True)
-        return result
-    except Exception as e:
-        api_key_manager.record_api_call(api_key, success=False)
-        logging.error(f"LLM call failed for scheduling email: {e}")
-        return SchedulingEmail(subject="Meeting Availability", email_body="<p>Hello,</p><p>Following up on your interest, here are some times we could connect:</p><ul><li>Monday at 10 AM</li><li>Tuesday at 2 PM</li></ul><p>Let me know if one of these works for you.</p>")
-
+def _get_sender_email() -> str:
+    load_dotenv()
+    return os.getenv("SENDERS_EMAIL", "")
 def Scheduler(state: AgenticState) -> AgenticState:
     """
-    Identifies interested leads and sends them an email with proposed meeting times.
+    A two-stage agent that first offers meeting times, and then books them upon confirmation.
     """
-    interested_leads = get_leads_by_status(state, "interested")
-    if not interested_leads:
-        print("Scheduler: No interested leads to schedule.")
-        return state
-        
-    print(f"Scheduler: Processing {len(interested_leads)} interested leads.")
+    lead = state.lead[0]
     
-    api_key = api_key_manager.get_key_for_thread()
-    # In a real app, you would get these from a calendar API
-    available_times = ["Monday, 10:00 AM PST", "Tuesday, 2:00 PM PST", "Wednesday, 11:00 AM PST"]
-
-    for lead in interested_leads:
-        # 1. Draft the scheduling email using the LLM
-        scheduling_email = draft_scheduling_email(lead.communication_history, available_times, api_key)
+    # --- STAGE 1: Offer meeting times to an 'interested' lead ---
+    if lead.status == "interested":
+        print(f"Scheduler (Stage 1): Finding available times for lead {lead.lead_id}")
         
-        # 2. Send the email
-        email_sent = send_email(
-            to_email=lead.raw_data.get("email"),
-            subject=scheduling_email.subject,
-            html_content=scheduling_email.email_body
+        # 1. Find real available slots in the next 7 days
+        now = datetime.now().astimezone()
+        start_range = now + timedelta(days=1)
+        end_range = now + timedelta(days=7)
+        available_slots = find_free_slots(start_range, end_range)
+
+        if not available_slots:
+            logging.error(f"No available slots found for lead {lead.lead_id}. Manual review needed.")
+            lead.status = "scheduling_failed_no_slots"
+            return state
+
+        # Format times for the email prompt (e.g., "Monday, July 26th at 10:00 AM")
+        formatted_times = [datetime.fromisoformat(slot['start']).strftime('%A, %B %d at %I:%M %p %Z') for slot in available_slots]
+
+        # 2. Use the existing tool to draft and send the email with REAL times
+        result, email_body = send_meeting_options_email(
+            lead_email=lead.raw_data.get("email"),
+            communication_history=lead.communication_history,
+            available_times=formatted_times,
+            supervisor_context=lead.scheduling_context
         )
 
-        if email_sent:
-            # 3. Update the lead's state and history
+        if "SUCCESS" in result:
             lead.status = "scheduling_in_progress"
+            # Log the full slot data in history for later use
             communication_entry = {
-                "type": "outbound_scheduling",
-                "message": scheduling_email.email_body,
-                "sent_at": datetime.isoformat()
+                "type": "outbound_scheduling", "message": email_body,
+                "sent_at": datetime.now().isoformat(), "proposed_slots": available_slots
             }
             lead.communication_history.append(communication_entry)
-            print(f"  - Scheduling email sent to {lead.raw_data.get('email')}.")
+            print(f"  - Scheduling email with real times sent to {lead.raw_data.get('email')}.")
         else:
-            logging.error(f"  - Failed to send scheduling email to {lead.raw_data.get('email')}.")
             lead.status = "scheduling_failed"
 
+    # --- STAGE 2: Book the meeting for a 'meeting_time_confirmed' lead ---
+    elif lead.status == "meeting_time_confirmed":
+        print(f"Scheduler (Stage 2): Booking meeting for lead {lead.lead_id}")
+        
+        # 1. Find the proposed slots from the last outbound message
+        proposed_slots = []
+        for msg in reversed(lead.communication_history):
+            if msg.get('type') == 'outbound_scheduling':
+                proposed_slots = msg.get('proposed_slots', [])
+                break
+        
+        # 2. Match the confirmed time with one of the proposed slots
+        # (A more robust solution would use LLM to parse confirmed_time and match it)   
+        confirmed_slot = proposed_slots[0] # Simple example: assume they chose the first one
+        
+        # 3. Create the calendar event
+        event = create_calendar_event(
+            summary=f"Meeting with {lead.raw_data.get('contact_person')} ({lead.raw_data.get('company_name')})",
+            start_time=confirmed_slot['start'],
+            end_time=confirmed_slot['end'],
+                attendees=[_get_sender_email(), lead.raw_data.get('email')]
+        )
+
+        if event:
+            lead.status = "meeting_booked"
+            lead.meeting_details = event
+            update_performance_metrics(state, "meetings_booked", 1)
+            print(f"  - Meeting successfully booked for {lead.raw_data.get('email')}.")
+        else:
+            lead.status = "booking_failed"
+            
     return state

@@ -9,7 +9,11 @@ from typing import List
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Define the database path within your project's data directory
-DB_PATH = Path(__file__).parent.parent / "data" / "qualified_leads.db"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DB_PATH = PROJECT_ROOT / "data" / "qualified_leads.db"
+
+# --- Add a print statement for debugging ---
+print(f"DATABASE PATH IS SET TO: {DB_PATH}")
 
 def create_connection():
     """Create a database connection to the SQLite database."""
@@ -39,10 +43,16 @@ def create_table(conn):
                 personalized_message TEXT,
                 communication_history TEXT, -- Stored as a JSON string
                 raw_data TEXT,               -- Stored as a JSON string
+                last_outreach_timestamp TEXT,
                 published_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         """)
+        try:
+            c.execute("ALTER TABLE qualified_leads ADD COLUMN last_outreach_timestamp TEXT;")
+        except sqlite3.OperationalError:
+            pass
         conn.commit()
+
     except sqlite3.Error as e:
         logging.error(f"Table creation error: {e}")
 
@@ -57,7 +67,7 @@ def publish_lead(conn, lead: Lead):
     sql = ''' INSERT OR REPLACE INTO qualified_leads(
                 lead_id, company_name, contact_person, job_title, email, status, 
                 score, qualified_lead, personalized_message, communication_history, raw_data
-              ) VALUES(?,?,?,?,?,?,?,?,?,?,?) '''
+              ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?) '''
     
     cursor = conn.cursor()
     
@@ -72,6 +82,9 @@ def publish_lead(conn, lead: Lead):
         int(lead.score) if lead.score is not None else None,
         lead.qualified_lead,
         lead.personalized_message,
+        lead.intent,
+        json.dumps(lead.meeting_details) if lead.meeting_details else None,
+        lead.last_outreach_timestamp, 
         json.dumps(lead.communication_history) if lead.communication_history else '[]',
         json.dumps(lead.raw_data)
     )

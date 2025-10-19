@@ -1,23 +1,28 @@
+from asyncio import SendfileNotAvailableError
 from app.models.state import AgenticState, Lead
 from pydantic import BaseModel, Field
 from typing import Dict, Literal
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv
 from app.models.prompts import STRATEGIST_SYSTEM_PROMPT, STRATEGIST_HUMAN_PROMPT_TEMPLATE
 from app.utils import update_performance_metrics, rate_limited_call
-from app.database import create_connection, publish_lead
+from app.database import create_connection, create_table, publish_lead
+import yaml
+from pathlib import Path
 import os
 
 load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY_3")
+api_key = os.getenv("GROQ_API_KEY_4")
 
 if not api_key:
-    raise ValueError("GEMINI_API_KEY not found in environment variables")
+    raise ValueError("GROQ_API_KEY not found in environment variables")
 
 class PersonalizedMessage(BaseModel):
     subject_line: str = Field(description="Compelling email subject line (max 50 characters)")
-    email_body: str = Field(description="Personalized email body (150-200 words)")
+    salutation: str = Field(description="The opening salutation, e.g., 'Dear Neha Chauhan,'")
+    email_body: str = Field(description="The main paragraphs of the personalized email body (150-200 words). Do NOT include the salutation or closing.")
+    signature: str = Field(description="The closing of the email, e.g., 'Best regards,' or 'Sincerely,'")
     tone: Literal["professional", "conversational", "executive", "friendly"] = Field(description="Tone of the email based on recipient's role")
     key_personalization_points: Dict[str, str] = Field(
         description="Key personalization elements used in the email",
@@ -30,14 +35,23 @@ class PersonalizedMessage(BaseModel):
     call_to_action: str = Field(description="Clear call-to-action for the recipient")
     follow_up_suggestion: str = Field(description="Suggested follow-up strategy if no response")
 
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0.7, api_key=api_key)
+llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.7, groq_api_key=api_key)
 structured_llm = llm.with_structured_output(PersonalizedMessage)
 
-@rate_limited_call(max_per_minute=3)
+@rate_limited_call(max_per_minute=5)
 def call_llm(messages):
     if structured_llm is None:
         raise ValueError("LLM not initialized. Please set GEMINI_API_KEY environment variable.")
     return structured_llm.invoke(messages)
+
+def load_sender_config():
+    config_path = Path(__file__).parent.parent.parent / "configs" / "sender_config.yaml"
+    with open(config_path, 'r') as file:
+        return yaml.safe_load(file)
+    
+sender_config = load_sender_config()
+SENDER_NAME = sender_config.get("name", "Your Name")
+SENDER_TITLE = sender_config.get("title", "Your Title")
 
 def generate_personalized_message(lead: Lead) -> PersonalizedMessage:
     """
@@ -59,13 +73,15 @@ def generate_personalized_message(lead: Lead) -> PersonalizedMessage:
         lead_data=lead_data,
         expected_response="""
         A PersonalizedMessage object with:
-        - subject_line: Compelling email subject line (max 50 characters)
-        - email_body: Personalized email body (150-200 words)
-        - tone: professional/conversational/executive/friendly based on recipient's role
-        - key_personalization_points: Key personalization elements used
-        - call_to_action: Clear call-to-action for the recipient
-        - follow_up_suggestion: Suggested follow-up strategy if no response
-        """
+        "subject_line": "A compelling subject line",
+        "salutation": "Dear [Contact Person],",
+        "email_body": "The main paragraphs of the email...",
+        "signature": "Best regards,",
+        "tone": "professional",
+        "key_personalization_points": {{...}},
+        "call_to_action": "A clear call-to-action",
+        "follow_up_suggestion": "A follow-up strategy"
+      """
     )
 
     messages = [
@@ -103,8 +119,20 @@ def process_single_lead_message(lead: Lead, db_conn) -> Lead:
 
     personalized_message = generate_personalized_message(lead)
     
+    final_email_html = f"""
+    <p>{personalized_message.salutation}</p>
+    
+    <p>{personalized_message.email_body.replace(chr(10), '<br>')}</p>
+    
+    <p>{personalized_message.call_to_action}</p>
+    
+    <p>{personalized_message.signature}<br>
+    <b>{SENDER_NAME}</b><br>
+    <i>{SENDER_TITLE}</i></p>
+    """
+
     # Update the lead with the personalized message
-    lead.personalized_message = personalized_message.email_body
+    lead.personalized_message = final_email_html
     
     # Add to communication history
     if lead.communication_history is None:
@@ -113,7 +141,7 @@ def process_single_lead_message(lead: Lead, db_conn) -> Lead:
     communication_entry = {
         "type": "outreach_email",
         "subject": personalized_message.subject_line,
-        "message": personalized_message.email_body,
+        "message": final_email_html,
         "tone": personalized_message.tone,
         "personalization_points": personalized_message.key_personalization_points,
         "call_to_action": personalized_message.call_to_action,
@@ -150,6 +178,13 @@ def Strategist(state: AgenticState) -> AgenticState:
     db_conn = create_connection()
     if not db_conn:
         print("Could not connect to the database. Aborting strategist run.")
+        return state
+    # Ensure table exists before inserting
+    try:
+        create_table(db_conn)
+    except Exception as e:
+        print(f"Failed to ensure table exists: {str(e)}")
+        db_conn.close()
         return state
 
     processed_count = 0

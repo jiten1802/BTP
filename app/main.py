@@ -5,11 +5,13 @@ from app.agents.interpreter import Interpreter
 from app.agents.scheduler import Scheduler
 from app.agents.record_keeper import RecordKeeper
 from fastapi import FastAPI
+from app.database import initialize_database
 from app.models.state import AgenticState
 from app.initialize import initialize_state
 from langgraph.graph import StateGraph, END, START
 from typing import Literal
 
+initialize_database()
 global_state = initialize_state()
 
 graph = StateGraph(AgenticState)
@@ -49,11 +51,22 @@ async def run_workflow():
 
     global_state = final_state
 
+    # Safely access performance metrics whether it's an object with attr or a dict
+    metrics = getattr(global_state, 'performance_metrics', None)
+    if isinstance(metrics, dict):
+        processed = metrics.get("processed_leads", 0)
+        qualified = metrics.get("qualified_leads", 0)
+        messages = metrics.get("messages_generated", 0)
+    else:
+        processed = getattr(metrics, 'get', lambda k, d=0: d)("processed_leads", 0) if metrics else 0
+        qualified = getattr(metrics, 'get', lambda k, d=0: d)("qualified_leads", 0) if metrics else 0
+        messages = getattr(metrics, 'get', lambda k, d=0: d)("messages_generated", 0) if metrics else 0
+
     return {
         "message": "Full workflow completed",
-        "processed_leads": global_state.performance_metrics.get("processed_leads", 0),
-        "qualified_leads": global_state.performance_metrics.get("qualified_leads", 0),
-        "messages_generated": global_state.performance_metrics.get("messages_generated", 0)
+        "processed_leads": processed,
+        "qualified_leads": qualified,
+        "messages_generated": messages
     }
 
 @app.post("/prospector/run")
@@ -66,10 +79,18 @@ async def run_prospector():
     updated_state = app_graph.nodes['prospector'].invoke(global_state)
     global_state = updated_state
     
+    metrics = getattr(global_state, 'performance_metrics', None)
+    if isinstance(metrics, dict):
+        processed = metrics.get("processed_leads", 0)
+        qualified = metrics.get("qualified_leads", 0)
+    else:
+        processed = getattr(metrics, 'get', lambda k, d=0: d)("processed_leads", 0) if metrics else 0
+        qualified = getattr(metrics, 'get', lambda k, d=0: d)("qualified_leads", 0) if metrics else 0
+
     return {
         "message": "Prospector run completed",
-        "processed_leads": global_state.performance_metrics.get("processed_leads", 0),
-        "qualified_leads": global_state.performance_metrics.get("qualified_leads", 0),
+        "processed_leads": processed,
+        "qualified_leads": qualified,
     }
 
 @app.post("/strategist/run")
@@ -82,10 +103,18 @@ async def run_strategist():
     updated_state = app_graph.nodes['strategist'].invoke(global_state)
     global_state = updated_state
     
+    metrics = getattr(global_state, 'performance_metrics', None)
+    if isinstance(metrics, dict):
+        messages = metrics.get("messages_generated", 0)
+        strategist_processed = metrics.get("strategist_processed", 0)
+    else:
+        messages = getattr(metrics, 'get', lambda k, d=0: d)("messages_generated", 0) if metrics else 0
+        strategist_processed = getattr(metrics, 'get', lambda k, d=0: d)("strategist_processed", 0) if metrics else 0
+
     return {
         "message": "Strategist run completed",
-        "messages_generated": global_state.performance_metrics.get("messages_generated", 0),
-        "strategist_processed": global_state.performance_metrics.get("strategist_processed", 0),
+        "messages_generated": messages,
+        "strategist_processed": strategist_processed,
     }
 @app.post("communicator/run")
 async def run_communicator():
@@ -97,9 +126,15 @@ async def run_communicator():
     updated_state = app_graph.nodes['communicator'].invoke(global_state)
     global_state = updated_state
     
+    metrics = getattr(global_state, 'performance_metrics', None)
+    if isinstance(metrics, dict):
+        emails_sent = metrics.get("emails_sent", 0)
+    else:
+        emails_sent = getattr(metrics, 'get', lambda k, d=0: d)("emails_sent", 0) if metrics else 0
+
     return {
         "message": "Communicator run completed",
-        "emails_sent": global_state.performance_metrics.get("emails_sent", 0),
+        "emails_sent": emails_sent,
     }
 
 @app.post("/interpreter/run")
@@ -109,8 +144,9 @@ async def run_interpreter():
     """
     global global_state
     global_state = app_graph.nodes['interpreter'].invoke(global_state)
+    metrics = getattr(global_state, 'performance_metrics', None)
     return {
         "message": "Interpreter run completed",
-        "metrics": global_state.performance_metrics
+        "metrics": metrics if isinstance(metrics, dict) else (metrics.__dict__ if metrics else {}),
     }
     

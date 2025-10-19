@@ -12,8 +12,10 @@ class Lead(BaseModel):
     score: Optional[float] = None
     contacts: Optional[List[Dict[str, Any]]] = None
     personalized_message: Optional[str] = None
+    last_outreach_timestamp: Optional[str] = None
     communication_history: Optional[List[Dict[str, Any]]] = Field(default_factory=list)
     intent: Optional[str] = None
+    scheduling_context: Optional[Dict[str, Any]] = None
     meeting_details: Optional[Dict[str, Any]] = None
 
 class AgenticState(BaseModel):

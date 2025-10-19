@@ -1,9 +1,9 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from app.models.state import AgenticState, Lead
 from app.utils import get_leads_by_status, update_performance_metrics
 # This import connects to your email logic (whether it's Gmail, SendGrid, etc.)
-from app.email_client import send_email
+from app.google_api_client import send_email
 
 # Setup basic logging to see success/error messages in your terminal
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -34,21 +34,22 @@ def process_lead_for_sending(lead: Lead) -> Lead:
     logging.info(f"📤 Attempting to send email to {recipient_email}...")
     
     # The send_email function from your email_client returns True on success, False on failure
-    email_sent_successfully = send_email(
+    email_sent_result = send_email(
         to_email=recipient_email,
         subject=subject,
         html_content=body
     )
     
-    if email_sent_successfully:
-        # If sending succeeded, update the communication entry and the lead's primary status
+    if email_sent_result.get("success"):
         last_communication['status'] = 'sent'
-        last_communication['sent_at'] = datetime.isoformat()
+        last_communication['sent_at'] = datetime.now(timezone.utc).isoformat()
+        last_communication['thread_id'] = email_sent_result.get("thread_id")
         lead.status = "outreach_sent"
+        lead.last_outreach_timestamp = last_communication['sent_at']
     else:
         # If sending failed, update the status accordingly to prevent retries
         last_communication['status'] = 'failed'
-        last_communication['failed_at'] = datetime.isoformat()
+        last_communication['failed_at'] = datetime.now().isoformat()
         lead.status = "sending_failed"
     
     return lead
