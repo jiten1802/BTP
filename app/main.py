@@ -1,4 +1,4 @@
-from app.agents.prospector import Prospector
+from app.agents.prospector_llm import Prospector
 from app.agents.strategist import Strategist
 from app.agents.communicator import Communicator
 from app.agents.interpreter import Interpreter

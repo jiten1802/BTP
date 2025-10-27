@@ -35,7 +35,7 @@ class PersonalizedMessage(BaseModel):
     call_to_action: str = Field(description="Clear call-to-action for the recipient")
     follow_up_suggestion: str = Field(description="Suggested follow-up strategy if no response")
 
-llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.7, groq_api_key=api_key)
+llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, groq_api_key=api_key)
 structured_llm = llm.with_structured_output(PersonalizedMessage)
 
 @rate_limited_call(max_per_minute=5)
@@ -45,7 +45,7 @@ def call_llm(messages):
     return structured_llm.invoke(messages)
 
 def load_sender_config():
-    config_path = Path(__file__).parent.parent.parent / "configs" / "sender_config.yaml"
+    config_path = Path(__file__).parent.parent.parent / "configs" / "sender_configs.yaml"
     with open(config_path, 'r') as file:
         return yaml.safe_load(file)
     

@@ -1,0 +1,101 @@
+company_name,industry,employee_count,location,contact_person,job_title,email,score,qualification_status
+CyberCore Networks,Retail,2747,Kolkata,Neha Singh,Intern,neha.singh@cybercorenetworks.com,10,NOT_QUALIFIED
+LogiFlow Tech,Real Estate,2406,Chennai,Ravi Kumar,CTO,ravi.kumar@logiflowtech.com,30,NEEDS_REVIEW
+NextGen Systems,Finance,1617,Pune,Vikram Rao,Head of Sales,vikram.rao@nextgensystems.com,90,QUALIFIED
+EduSphere Tech,Retail,2457,Hyderabad,Neha Singh,Intern,neha.singh@eduspheretech.com,30,NOT_QUALIFIED
+EduSphere Corp,Retail,2511,Chennai,Neha Singh,Assistant,neha.singh@eduspherecorp.com,10,NOT_QUALIFIED
+NextGen Corp,E-commerce,1999,Kolkata,Priya Sharma,Executive,priya.sharma@nextgencorp.com,50,NOT_QUALIFIED
+EduSphere Tech,Education,2265,Jaipur,Neha Singh,CTO,neha.singh@eduspheretech.com,30,NEEDS_REVIEW
+MediLife Analytics,Software,2334,Gurugram,Karan Shah,Head of Marketing,karan.shah@medilifeanalytics.com,75,QUALIFIED
+MediLife Networks,Real Estate,1365,Gurugram,Priya Sharma,Engineering Manager,priya.sharma@medilifenetworks.com,45,NEEDS_REVIEW
+LogiFlow Corp,E-commerce,1416,Mumbai,Priya Sharma,Intern,priya.sharma@logiflowcorp.com,70,NOT_QUALIFIED
+EduSphere Tech,Logistics,2889,Chennai,Anita Nair,Data Scientist,anita.nair@eduspheretech.com,30,NEEDS_REVIEW
+RealOne Labs,Education,2151,Gurugram,Divya Reddy,Head of Sales,divya.reddy@realonelabs.com,50,QUALIFIED
+LogiFlow Networks,Cybersecurity,1847,Ahmedabad,Karan Shah,Sales Executive,karan.shah@logiflownetworks.com,50,NOT_QUALIFIED
+RetailX Group,Education,1492,Ahmedabad,Sneha Iyer,CEO,sneha.iyer@retailxgroup.com,45,NEEDS_REVIEW
+RealOne Corp,Software,2797,Mumbai,Arjun Mehta,Head of Sales,arjun.mehta@realonecorp.com,75,QUALIFIED
+MediLife Networks,Cybersecurity,72,Pune,Amit Patel,Data Scientist,amit.patel@medilifenetworks.com,75,QUALIFIED
+Innova Group,Finance,743,Jaipur,Priya Sharma,Engineering Manager,priya.sharma@innovagroup.com,50,QUALIFIED
+LogiFlow Labs,Logistics,1783,Chennai,Ravi Kumar,Product Manager,ravi.kumar@logiflowlabs.com,45,NEEDS_REVIEW
+CyberCore Solutions,E-commerce,176,Ahmedabad,Anita Nair,Intern,anita.nair@cybercoresolutions.com,50,NOT_QUALIFIED
+TechNova Analytics,Software,92,Delhi,Anita Nair,CTO,anita.nair@technovaanalytics.com,55,QUALIFIED
+RetailX Solutions,Logistics,1853,Delhi,Amit Patel,Product Manager,amit.patel@retailxsolutions.com,45,NEEDS_REVIEW
+CyberCore Labs,Manufacturing,1518,Chennai,Amit Patel,Sales Executive,amit.patel@cybercorelabs.com,25,NOT_QUALIFIED
+Innova Corp,Cybersecurity,1987,Kolkata,Karan Shah,CTO,karan.shah@innovacorp.com,70,QUALIFIED
+TechNova Group,Manufacturing,135,Hyderabad,Priya Sharma,Product Manager,priya.sharma@technovagroup.com,65,QUALIFIED
+EduSphere Networks,Cybersecurity,1173,Hyderabad,Neha Singh,Intern,neha.singh@eduspherenetworks.com,70,NOT_QUALIFIED
+EduSphere Solutions,Healthcare,132,Jaipur,Sneha Iyer,Engineering Manager,sneha.iyer@eduspheresolutions.com,25,NOT_QUALIFIED
+TechNova Corp,Logistics,820,Ahmedabad,Vikram Rao,Engineering Manager,vikram.rao@technovacorp.com,25,NOT_QUALIFIED
+RetailX Corp,E-commerce,245,Chennai,Ravi Kumar,Head of Marketing,ravi.kumar@retailxcorp.com,70,QUALIFIED
+EduSphere Corp,Education,2938,Mumbai,Ravi Kumar,Product Manager,ravi.kumar@eduspherecorp.com,50,QUALIFIED
+RealOne Group,Software,2355,Pune,Vikram Rao,CTO,vikram.rao@realonegroup.com,75,QUALIFIED
+CyberCore Group,E-commerce,427,Kolkata,Ravi Kumar,Sales Executive,ravi.kumar@cybercoregroup.com,50,NOT_QUALIFIED
+CyberCore Group,Real Estate,848,Hyderabad,Anita Nair,Intern,anita.nair@cybercoregroup.com,45,NOT_QUALIFIED
+RetailX Group,Logistics,463,Hyderabad,Ravi Kumar,Operations Manager,ravi.kumar@retailxgroup.com,45,NEEDS_REVIEW
+TechNova Corp,Retail,310,Kolkata,Anita Nair,Sales Executive,anita.nair@technovacorp.com,25,NOT_QUALIFIED
+RetailX Group,Manufacturing,2341,Hyderabad,Arjun Mehta,Assistant,arjun.mehta@retailxgroup.com,30,NOT_QUALIFIED
+CyberCore Systems,Software,424,Hyderabad,Amit Patel,Product Manager,amit.patel@cybercoresystems.com,90,QUALIFIED
+NextGen Labs,Logistics,1932,Bengaluru,Neha Singh,Engineering Manager,neha.singh@nextgenlabs.com,45,NEEDS_REVIEW
+Innova Tech,Logistics,2827,Kolkata,Sneha Iyer,Product Manager,sneha.iyer@innovatech.com,30,NEEDS_REVIEW
+RetailX Systems,Software,1575,Jaipur,Arjun Mehta,Data Scientist,arjun.mehta@retailxsystems.com,70,QUALIFIED
+CyberCore Group,Logistics,1538,Chennai,Anita Nair,Head of Sales,anita.nair@cybercoregroup.com,45,NEEDS_REVIEW
+TechNova Group,Healthcare,1046,Hyderabad,Vikram Rao,Head of Sales,vikram.rao@technovagroup.com,65,QUALIFIED
+TechNova Labs,Healthcare,2379,Mumbai,Sneha Iyer,CTO,sneha.iyer@technovalabs.com,50,QUALIFIED
+EduSphere Group,Healthcare,2790,Mumbai,Karan Shah,CTO,karan.shah@eduspheregroup.com,50,QUALIFIED
+CyberCore Labs,Manufacturing,2361,Gurugram,Neha Singh,CEO,neha.singh@cybercorelabs.com,50,QUALIFIED
+NextGen Systems,E-commerce,360,Ahmedabad,Sneha Iyer,Sales Executive,sneha.iyer@nextgensystems.com,50,NOT_QUALIFIED
+RetailX Networks,E-commerce,2983,Mumbai,Karan Shah,Intern,karan.shah@retailxnetworks.com,55,NOT_QUALIFIED
+RealOne Solutions,E-commerce,2849,Chennai,Ravi Kumar,Intern,ravi.kumar@realonesolutions.com,35,NOT_QUALIFIED
+NextGen Analytics,Education,2717,Mumbai,Divya Reddy,CEO,divya.reddy@nextgenanalytics.com,50,QUALIFIED
+MediLife Networks,Retail,587,Delhi,Arjun Mehta,Executive,arjun.mehta@medilifenetworks.com,25,NOT_QUALIFIED
+RetailX Systems,Healthcare,75,Kolkata,Neha Singh,Marketing Director,neha.singh@retailxsystems.com,10,NOT_QUALIFIED
+EduSphere Group,Healthcare,1661,Chennai,Anita Nair,Intern,anita.nair@eduspheregroup.com,25,NOT_QUALIFIED
+Innova Labs,Finance,1965,Ahmedabad,Arjun Mehta,Engineering Manager,arjun.mehta@innovalabs.com,50,QUALIFIED
+MediLife Analytics,Manufacturing,2115,Gurugram,Karan Shah,Marketing Director,karan.shah@medilifeanalytics.com,30,NEEDS_REVIEW
+FinEdge Networks,Real Estate,413,Chennai,Divya Reddy,Head of Marketing,divya.reddy@finedgenetworks.com,45,NEEDS_REVIEW
+LogiFlow Corp,Finance,1600,Mumbai,Karan Shah,Marketing Director,karan.shah@logiflowcorp.com,70,QUALIFIED
+CyberCore Systems,Retail,992,Bengaluru,Ravi Kumar,Executive,ravi.kumar@cybercoresystems.com,45,NOT_QUALIFIED
+Innova Systems,Manufacturing,1634,Pune,Amit Patel,CEO,amit.patel@innovasystems.com,65,QUALIFIED
+CyberCore Group,Cybersecurity,2459,Bengaluru,Karan Shah,CEO,karan.shah@cybercoregroup.com,75,QUALIFIED
+NextGen Systems,E-commerce,1545,Bengaluru,Sneha Iyer,Head of Sales,sneha.iyer@nextgensystems.com,90,QUALIFIED
+RetailX Corp,Manufacturing,305,Hyderabad,Neha Singh,Head of Marketing,neha.singh@retailxcorp.com,65,QUALIFIED
+LogiFlow Group,Retail,147,Chennai,Sneha Iyer,Operations Manager,sneha.iyer@logiflowgroup.com,25,NOT_QUALIFIED
+TechNova Systems,Education,812,Chennai,Sneha Iyer,Marketing Director,sneha.iyer@technovasystems.com,25,NOT_QUALIFIED
+NextGen Solutions,Manufacturing,589,Ahmedabad,Neha Singh,Head of Sales,neha.singh@nextgensolutions.com,45,NEEDS_REVIEW
+CyberCore Networks,Healthcare,1000,Chennai,Anita Nair,Marketing Director,anita.nair@cybercorenetworks.com,25,NOT_QUALIFIED
+TechNova Solutions,E-commerce,2374,Chennai,Neha Singh,Engineering Manager,neha.singh@technovasolutions.com,35,NEEDS_REVIEW
+Innova Tech,Retail,86,Jaipur,Arjun Mehta,Head of Marketing,arjun.mehta@innovatech.com,30,NEEDS_REVIEW
+EduSphere Tech,Manufacturing,355,Jaipur,Neha Singh,Assistant,neha.singh@eduspheretech.com,25,NOT_QUALIFIED
+CyberCore Labs,Manufacturing,1407,Ahmedabad,Divya Reddy,Marketing Director,divya.reddy@cybercorelabs.com,25,NOT_QUALIFIED
+FinEdge Corp,Cybersecurity,850,Chennai,Anita Nair,Assistant,anita.nair@finedgecorp.com,50,NOT_QUALIFIED
+EduSphere Systems,Manufacturing,1377,Delhi,Arjun Mehta,Engineering Manager,arjun.mehta@eduspheresystems.com,25,NOT_QUALIFIED
+TechNova Systems,Healthcare,2090,Delhi,Priya Sharma,Intern,priya.sharma@technovasystems.com,10,NOT_QUALIFIED
+CyberCore Group,Logistics,2350,Chennai,Anita Nair,Head of Marketing,anita.nair@cybercoregroup.com,30,NEEDS_REVIEW
+CyberCore Corp,Logistics,1931,Chennai,Sneha Iyer,CEO,sneha.iyer@cybercorecorp.com,45,NEEDS_REVIEW
+MediLife Corp,Manufacturing,555,Kolkata,Anita Nair,CTO,anita.nair@medilifecorp.com,45,NEEDS_REVIEW
+MediLife Corp,Real Estate,1319,Bengaluru,Vikram Rao,Intern,vikram.rao@medilifecorp.com,45,NOT_QUALIFIED
+CyberCore Labs,Software,2738,Mumbai,Anita Nair,Head of Sales,anita.nair@cybercorelabs.com,75,QUALIFIED
+EduSphere Analytics,Healthcare,1574,Mumbai,Neha Singh,Executive,neha.singh@edusphereanalytics.com,45,NOT_QUALIFIED
+RealOne Group,Manufacturing,218,Jaipur,Arjun Mehta,Intern,arjun.mehta@realonegroup.com,25,NOT_QUALIFIED
+RetailX Solutions,Healthcare,1491,Gurugram,Sneha Iyer,Executive,sneha.iyer@retailxsolutions.com,45,NOT_QUALIFIED
+Innova Networks,Retail,1705,Mumbai,Priya Sharma,CEO,priya.sharma@innovanetworks.com,65,QUALIFIED
+TechNova Systems,Healthcare,2973,Pune,Ravi Kumar,Data Scientist,ravi.kumar@technovasystems.com,50,QUALIFIED
+Innova Group,Finance,2389,Jaipur,Amit Patel,Data Scientist,amit.patel@innovagroup.com,55,QUALIFIED
+FinEdge Tech,Cybersecurity,117,Mumbai,Karan Shah,Engineering Manager,karan.shah@finedgetech.com,70,QUALIFIED
+RealOne Systems,Healthcare,2183,Ahmedabad,Ravi Kumar,Executive,ravi.kumar@realonesystems.com,10,NOT_QUALIFIED
+FinEdge Systems,Logistics,2919,Pune,Divya Reddy,Sales Executive,divya.reddy@finedgesystems.com,30,NOT_QUALIFIED
+TechNova Labs,Finance,1553,Ahmedabad,Vikram Rao,Head of Sales,vikram.rao@technovalabs.com,70,QUALIFIED
+RealOne Networks,Manufacturing,1013,Gurugram,Sneha Iyer,Product Manager,sneha.iyer@realonenetworks.com,65,QUALIFIED
+MediLife Networks,Software,2091,Hyderabad,Amit Patel,Sales Executive,amit.patel@medilifenetworks.com,55,NOT_QUALIFIED
+RetailX Corp,E-commerce,295,Mumbai,Amit Patel,Data Scientist,amit.patel@retailxcorp.com,90,QUALIFIED
+RetailX Group,Healthcare,2366,Pune,Priya Sharma,Operations Manager,priya.sharma@retailxgroup.com,30,NEEDS_REVIEW
+CyberCore Analytics,Software,787,Ahmedabad,Vikram Rao,Data Scientist,vikram.rao@cybercoreanalytics.com,70,QUALIFIED
+NextGen Group,Retail,775,Jaipur,Anita Nair,Sales Executive,anita.nair@nextgengroup.com,25,NOT_QUALIFIED
+FinEdge Group,Manufacturing,820,Kolkata,Neha Singh,Head of Sales,neha.singh@finedgegroup.com,45,NEEDS_REVIEW
+LogiFlow Group,Retail,1343,Gurugram,Priya Sharma,CTO,priya.sharma@logiflowgroup.com,65,QUALIFIED
+TechNova Labs,Real Estate,2723,Jaipur,Priya Sharma,Sales Executive,priya.sharma@technovalabs.com,10,NOT_QUALIFIED
+NextGen Corp,Software,591,Kolkata,Neha Singh,Data Scientist,neha.singh@nextgencorp.com,70,QUALIFIED
+Innova Labs,Logistics,2854,Ahmedabad,Neha Singh,Assistant,neha.singh@innovalabs.com,10,NOT_QUALIFIED
+CyberCore Systems,E-commerce,1015,Mumbai,Arjun Mehta,Head of Sales,arjun.mehta@cybercoresystems.com,90,QUALIFIED
+RetailX Networks,Real Estate,1029,Delhi,Neha Singh,Assistant,neha.singh@retailxnetworks.com,25,NOT_QUALIFIED
+Innova Labs,Cybersecurity,2039,Chennai,Ravi Kumar,Data Scientist,ravi.kumar@innovalabs.com,55,QUALIFIED
