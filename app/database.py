@@ -41,14 +41,33 @@ def create_table(conn):
                 score INTEGER,
                 qualified_lead BOOLEAN,
                 personalized_message TEXT,
-                communication_history TEXT, -- Stored as a JSON string
-                raw_data TEXT,               -- Stored as a JSON string
+                intent TEXT,
+                meeting_details TEXT,
                 last_outreach_timestamp TEXT,
+                communication_history TEXT,
+                raw_data TEXT,
                 published_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         """)
+        # Backwards-compatible ALTER TABLEs for old DBs
+        try:
+            c.execute("ALTER TABLE qualified_leads ADD COLUMN intent TEXT;")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            c.execute("ALTER TABLE qualified_leads ADD COLUMN meeting_details TEXT;")
+        except sqlite3.OperationalError:
+            pass
         try:
             c.execute("ALTER TABLE qualified_leads ADD COLUMN last_outreach_timestamp TEXT;")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            c.execute("ALTER TABLE qualified_leads ADD COLUMN communication_history TEXT;")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            c.execute("ALTER TABLE qualified_leads ADD COLUMN raw_data TEXT;")
         except sqlite3.OperationalError:
             pass
         conn.commit()
@@ -66,8 +85,8 @@ def publish_lead(conn, lead: Lead):
 
     sql = ''' INSERT OR REPLACE INTO qualified_leads(
                 lead_id, company_name, contact_person, job_title, email, status, 
-                score, qualified_lead, personalized_message, communication_history, raw_data
-              ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?) '''
+                score, qualified_lead, personalized_message, intent, meeting_details, last_outreach_timestamp, communication_history, raw_data
+              ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) '''
     
     cursor = conn.cursor()
     
@@ -84,7 +103,7 @@ def publish_lead(conn, lead: Lead):
         lead.personalized_message,
         lead.intent,
         json.dumps(lead.meeting_details) if lead.meeting_details else None,
-        lead.last_outreach_timestamp, 
+        lead.last_outreach_timestamp,
         json.dumps(lead.communication_history) if lead.communication_history else '[]',
         json.dumps(lead.raw_data)
     )

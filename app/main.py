@@ -1,4 +1,4 @@
-from app.agents.prospector_llm import Prospector
+from app.agents.prospector import Prospector
 from app.agents.strategist import Strategist
 from app.agents.communicator import Communicator
 from app.agents.interpreter import Interpreter
@@ -76,7 +76,7 @@ async def run_prospector():
     """
     global global_state
 
-    updated_state = app_graph.nodes['prospector'].invoke(global_state)
+    updated_state = app_graph.nodes['Prospector'].invoke(global_state)
     global_state = updated_state
     
     metrics = getattr(global_state, 'performance_metrics', None)
@@ -100,7 +100,7 @@ async def run_strategist():
     """
     global global_state
 
-    updated_state = app_graph.nodes['strategist'].invoke(global_state)
+    updated_state = app_graph.nodes['Strategist'].invoke(global_state)
     global_state = updated_state
     
     metrics = getattr(global_state, 'performance_metrics', None)
@@ -116,14 +116,14 @@ async def run_strategist():
         "messages_generated": messages,
         "strategist_processed": strategist_processed,
     }
-@app.post("communicator/run")
+@app.post("/communicator/run")
 async def run_communicator():
     """
     Run ONLY the Communicator agent on the current state.
     """
     global global_state
 
-    updated_state = app_graph.nodes['communicator'].invoke(global_state)
+    updated_state = app_graph.nodes['Communicator'].invoke(global_state)
     global_state = updated_state
     
     metrics = getattr(global_state, 'performance_metrics', None)
@@ -143,10 +143,9 @@ async def run_interpreter():
     Run ONLY the Interpreter agent on the current state.
     """
     global global_state
-    global_state = app_graph.nodes['interpreter'].invoke(global_state)
+    global_state = app_graph.nodes['Interpreter'].invoke(global_state)
     metrics = getattr(global_state, 'performance_metrics', None)
     return {
         "message": "Interpreter run completed",
         "metrics": metrics if isinstance(metrics, dict) else (metrics.__dict__ if metrics else {}),
     }
-    

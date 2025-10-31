@@ -3,6 +3,7 @@ from app.models.state import AgenticState, Lead
 from pydantic import BaseModel, Field
 from typing import Dict, Literal
 from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv
 from app.models.prompts import STRATEGIST_SYSTEM_PROMPT, STRATEGIST_HUMAN_PROMPT_TEMPLATE
@@ -13,7 +14,7 @@ from pathlib import Path
 import os
 
 load_dotenv()
-api_key = os.getenv("GROQ_API_KEY_4")
+api_key = os.getenv("GROQ_API_KEY_1")
 
 if not api_key:
     raise ValueError("GROQ_API_KEY not found in environment variables")
@@ -35,7 +36,7 @@ class PersonalizedMessage(BaseModel):
     call_to_action: str = Field(description="Clear call-to-action for the recipient")
     follow_up_suggestion: str = Field(description="Suggested follow-up strategy if no response")
 
-llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, groq_api_key=api_key)
+llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=1, api_key=api_key)
 structured_llm = llm.with_structured_output(PersonalizedMessage)
 
 @rate_limited_call(max_per_minute=5)
